@@ -1,0 +1,7 @@
+brew:
+  repo: qvl/brew
+build:
+  goos:
+    - windows
+    - darwin
+    - linux
