@@ -1,0 +1,153 @@
+{
+	"ImportPath": "qvl.io/promplot",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v77",
+	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/zombiezen/gopdf/pdf",
+			"Comment": "go.weekly.2012-02-22-18",
+			"Rev": "1c63dc69751bc45441c2ce1f56b631c55294b4d5"
+		},
+		{
+			"ImportPath": "github.com/ajstarks/svgo",
+			"Comment": "go.weekly.2012-01-27-131-g9f597be",
+			"Rev": "9f597be83ea4fd9bbc17dfc950ced53b9dbc7f19"
+		},
+		{
+			"ImportPath": "github.com/biogo/graphics/bezier",
+			"Rev": "ee9e4a4ad8d5c6c55688ec8da3f96f8bd3f09b85"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/raster",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/truetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
+		},
+		{
+			"ImportPath": "github.com/gonum/floats",
+			"Rev": "9fe75c11ab14e9efe0445ce5b96ac8fd552be30c"
+		},
+		{
+			"ImportPath": "github.com/gonum/internal/asm",
+			"Rev": "3065419bb46aefed1d66b0c951f2ef01da74fcbe"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/palette",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/palette/brewer",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/plotter",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/draw",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/fonts",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgeps",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgimg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgpdf",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/gonum/plot/vg/vgsvg",
+			"Rev": "235bd2a77303194e06d44c3ae432ac676bf041d0"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d/draw2dbase",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/llgcode/draw2d/draw2dimg",
+			"Comment": "release-283-g1286d3b",
+			"Rev": "1286d3b2030ac9952e59c5ef29ef3cc24a8e83d5"
+		},
+		{
+			"ImportPath": "github.com/nlopes/slack",
+			"Comment": "v0.0.1-152-ge595e9d",
+			"Rev": "e595e9d8590a04ff76407e4e7d1791d25b095c66"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/api/prometheus",
+			"Comment": "v0.8.0-44-g74f9ce2",
+			"Rev": "74f9ce27f652f73cbb519ce5500f8e12d08dcbd3"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/model",
+			"Rev": "dd2f054febf4a6c00f2343686efb775948a8bff4"
+		},
+		{
+			"ImportPath": "golang.org/x/image/draw",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/f64",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/fixed",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff/lzw",
+			"Rev": "1ff62c92167a10494f3e0b1e77cb67860a6ac43a"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "8dab9293431a241c65a8e8d46bbaa0492ec94849"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context/ctxhttp",
+			"Rev": "8dab9293431a241c65a8e8d46bbaa0492ec94849"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "8dab9293431a241c65a8e8d46bbaa0492ec94849"
+		}
+	]
+}

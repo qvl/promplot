@@ -8,7 +8,7 @@
 `promplot` is an opinionated tool to create plots from your [Prometheus](https://prometheus.io/) metrics and automatically sends them to you.
 
 Currently the only implemented transport is [Slack](https://slack.com/).
-But feel free to [add a new one](#Development)!
+But feel free to [add a new one](#development)!
 
 
     Usage: promplot [flags...]
@@ -85,6 +85,8 @@ brew install qvl/tap/promplot
 ## Development
 
 Make sure to use `gofmt` and create a [Pull Request](https://github.com/qvl/promplot/pulls).
+
+When changing external dependencies please use [godep](https://github.com/tools/godep/) to vendor them.
 
 
 ### Releasing

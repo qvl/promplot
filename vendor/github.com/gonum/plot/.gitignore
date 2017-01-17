@@ -1,0 +1,10 @@
+**/*.svg
+**/*.png
+!**/testdata/*_golden.png
+!**/testdata/*_input.png
+**/*.eps
+**/*.pdf
+**/*.jpg
+**/*.jpeg
+**/*.tif
+**/*.tiff
