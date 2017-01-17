@@ -1,25 +1,17 @@
 // Package main starts the binary.
 // Argument parsing, usage information and the actual execution can be found here.
+// See package promplot for using piece directly from you own Go code.
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
-	"strconv"
 	"time"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/palette/brewer"
-	"github.com/gonum/plot/plotter"
-	"github.com/gonum/plot/vg"
-	"github.com/nlopes/slack"
-	"github.com/prometheus/client_golang/api/prometheus"
-	"github.com/prometheus/common/model"
 	"qvl.io/promplot/flags"
+	"qvl.io/promplot/promplot"
 )
 
 // Can be set in build step using -ldflags
@@ -30,7 +22,7 @@ const (
 Usage: %s [flags...]
 
 Create and deliver plots from your Prometheus metrics.
-Currently only the slack transport is implemented.
+Currently only the Slack transport is implemented.
 
 
 Flags:
@@ -38,14 +30,12 @@ Flags:
 	more = "\nFor more visit: https://qvl.io/promplot"
 )
 
-const (
-	steps  = 100
-	imgExt = ".png"
-)
+// Number of data points for the plot
+const step = 100
 
 func main() {
 	var (
-		silent      = flag.Bool("silent", false, "Surpress all output.")
+		silent      = flag.Bool("silent", false, "Suppress all output.")
 		versionFlag = flag.Bool("version", false, "Print binary version.")
 		promServer  = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
@@ -74,135 +64,41 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !*silent {
-		fmt.Fprintf(os.Stderr, "Querying Prometheus \"%s\".\n", *query)
+	// Loggin helper
+	log := func(format string, a ...interface{}) {
+		if !*silent {
+			fmt.Fprintf(os.Stderr, format, a...)
+		}
 	}
-	metrics, err := getMetrics(*promServer, *query, queryTime(), *duration)
+
+	// Fetch
+	log("Querying Prometheus \"%s\".\n", *query)
+	metrics, err := promplot.Metrics(*promServer, *query, queryTime(), *duration, step)
+	fatal(err, "failed getting metrics")
+
+	// Plot
+	log("Creating plot \"%s\".\n", *title)
+	file, err := promplot.Plot(metrics, *title)
+	defer cleanup(file)
+	fatal(err, "failed creating plot")
+
+	// Upload
+	log("Uploading to Slack channel \"%s\".\n", *channel)
+	fatal(promplot.Slack(*slackToken, *channel, file, *title), "failed creating plot")
+
+	log("Done.")
+}
+
+func cleanup(file string) {
+	if file == "" {
+		return
+	}
+	fatal(os.Remove(file), "failed deleting file")
+}
+
+func fatal(err error, msg string) {
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed getting metrics:", err)
+		fmt.Fprintf(os.Stderr, "msg: %v\n", err)
 		os.Exit(1)
 	}
-
-	if !*silent {
-		fmt.Fprintf(os.Stderr, "Creating plot \"%s\".\n", *title)
-	}
-	file, err := createPlot(metrics, *title)
-	defer func() {
-		if file == "" {
-			return
-		}
-		if err := os.Remove(file); err != nil {
-			fmt.Fprintln(os.Stderr, "failed deleting file:", err)
-			os.Exit(1)
-		}
-	}()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed creating plot:", err)
-		os.Exit(1)
-	}
-
-	if !*silent {
-		fmt.Fprintf(os.Stderr, "Uploading to Slack channel \"%s\".\n", *channel)
-	}
-	if err = sendSlack(*slackToken, *channel, file, *title); err != nil {
-		fmt.Fprintln(os.Stderr, "failed uploading to Slack:", err)
-		os.Exit(1)
-	}
-
-	if !*silent {
-		fmt.Fprintln(os.Stderr, "Done.")
-	}
-}
-
-func getMetrics(server, query string, queryTime time.Time, duration time.Duration) (model.Matrix, error) {
-	client, err := prometheus.New(prometheus.Config{Address: server})
-	if err != nil {
-		return nil, fmt.Errorf("failed creating Prometheus client: %v", err)
-	}
-
-	api := prometheus.NewQueryAPI(client)
-	value, err := api.QueryRange(context.Background(), query, prometheus.Range{
-		Start: queryTime.Add(-duration),
-		End:   queryTime,
-		Step:  duration / steps,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed querying Prometheus: %v", err)
-	}
-
-	metrics, ok := value.(model.Matrix)
-	if !ok {
-		return nil, fmt.Errorf("unsupported result format: %s", value.Type().String())
-	}
-
-	return metrics, nil
-}
-
-func createPlot(metrics model.Matrix, title string) (string, error) {
-	p, err := plot.New()
-	if err != nil {
-		return "", fmt.Errorf("failed creating new plot: %v", err)
-	}
-
-	p.Title.Text = title
-	p.X.Label.Text = "Time"
-	p.Y.Label.Text = "Value"
-	p.X.Tick.Marker = plot.TimeTicks{Format: "2006-01-02\n15:04"}
-
-	palette, err := brewer.GetPalette(brewer.TypeAny, "Spectral", max(len(metrics), 3))
-	if err != nil {
-		return "", fmt.Errorf("cannot get color palette: %v", err)
-	}
-	colors := palette.Colors()
-
-	for s, sample := range metrics {
-		data := make(plotter.XYs, len(sample.Values))
-		for i, v := range sample.Values {
-			data[i].X = float64(v.Timestamp.Unix())
-			f, err := strconv.ParseFloat(v.Value.String(), 64)
-			if err != nil {
-				return "", fmt.Errorf("sample value not float: %s", v.Value.String())
-			}
-			data[i].Y = f
-		}
-
-		l, err := plotter.NewLine(data)
-		if err != nil {
-			return "", fmt.Errorf("failed creating line: %v", err)
-		}
-		l.LineStyle.Width = vg.Points(1)
-		l.LineStyle.Color = colors[s]
-
-		p.Add(l)
-		p.Legend.Add(sample.Metric.String(), l)
-		p.Legend.Top = true
-	}
-
-	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+imgExt)
-
-	if err := p.Save(10*vg.Inch, 10*vg.Inch, file); err != nil {
-		return "", fmt.Errorf("failed saving plot: %v", err)
-	}
-
-	return file, nil
-}
-
-func sendSlack(token, channel, file, title string) error {
-	api := slack.New(token)
-	params := slack.FileUploadParameters{
-		Title:    title,
-		Filetype: "image/png",
-		Filename: title + ".png",
-		File:     file,
-		Channels: []string{channel},
-	}
-	_, err := api.UploadFile(params)
-	return err
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
