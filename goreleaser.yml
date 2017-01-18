@@ -6,3 +6,5 @@ build:
     - windows
     - darwin
     - linux
+  goarch:
+    - amd64
