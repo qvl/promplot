@@ -54,7 +54,7 @@ func main() {
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Printf("ghbackup %s %s %s\n", version, runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("promplot %s %s %s\n", version, runtime.GOOS, runtime.GOARCH)
 		os.Exit(0)
 	}
 
