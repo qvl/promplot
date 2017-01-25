@@ -67,26 +67,26 @@ func main() {
 	// Loggin helper
 	log := func(format string, a ...interface{}) {
 		if !*silent {
-			fmt.Fprintf(os.Stderr, format, a...)
+			fmt.Fprintf(os.Stderr, format+"\n", a...)
 		}
 	}
 
 	// Fetch
-	log("Querying Prometheus \"%s\".\n", *query)
+	log("Querying Prometheus \"%s\"", *query)
 	metrics, err := promplot.Metrics(*promServer, *query, queryTime(), *duration, step)
 	fatal(err, "failed getting metrics")
 
 	// Plot
-	log("Creating plot \"%s\".\n", *title)
+	log("Creating plot \"%s\"", *title)
 	file, err := promplot.Plot(metrics, *title)
 	defer cleanup(file)
 	fatal(err, "failed creating plot")
 
 	// Upload
-	log("Uploading to Slack channel \"%s\".\n", *channel)
+	log("Uploading to Slack channel \"%s\"", *channel)
 	fatal(promplot.Slack(*slackToken, *channel, file, *title), "failed creating plot")
 
-	log("Done.")
+	log("Done")
 }
 
 func cleanup(file string) {
