@@ -14,30 +14,34 @@ But feel free to [add a new one](#development)!
     Usage: promplot [flags...]
 
     Create and deliver plots from your Prometheus metrics.
-    Currently only the slack transport is implemented.
+
+    Save plot to file or send it right to a slack channel.
+    At least one of -dir or -slack must be set.
 
 
     Flags:
       -channel string
-          Required. Slack channel to post to.
+          Required when -slack is set. Slack channel to post to.
+      -dir string
+          Directory to save plot to. Set to save plot as local file.
+      -name string
+          Optional. Image file name. '.png' is appended, so don't include it here. (default "promplot-<unixtime>")
       -query string
           Required. PQL query.
       -range duration
           Required. Time to look back to. Format: 12h34m56s.
       -silent
-          Surpress all output.
+          Optional. Suppress all output.
       -slack string
-          Required. Slack API token (https://api.slack.com/docs/oauth-test-tokens).
+          Slack API token (https://api.slack.com/docs/oauth-test-tokens). Set to post plot to Slack.
       -time value
           Required. Time for query (default is now). Format like the default format of the Unix date command.
       -title string
-          Title of graph. (default "Prometheus metrics")
+          Optional. Title of graph. (default "Prometheus metrics")
       -url string
           Required. URL of Prometheus server.
       -version
-          Print binary version.
-
-    For more visit: https://qvl.io/promplot
+          Optional. Print binary version.
 
 
 ## Example
