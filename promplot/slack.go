@@ -1,17 +1,36 @@
 package promplot
 
-import "github.com/nlopes/slack"
+import (
+	"fmt"
+
+	"github.com/nlopes/slack"
+)
 
 // Slack posts a file to a Slack channel.
 func Slack(token, channel, file, title string) error {
 	api := slack.New(token)
-	params := slack.FileUploadParameters{
+
+	_, _, err := api.PostMessage(channel, "New Plot:", slack.PostMessageParameters{
+		Username:  "Promplot",
+		IconEmoji: ":chart_with_upwards_trend:",
+		Attachments: []slack.Attachment{{
+			Title: title,
+		}},
+	})
+	if err != nil {
+		return fmt.Errorf("can not post message: %v", err)
+	}
+
+	_, err = api.UploadFile(slack.FileUploadParameters{
 		Title:    title,
 		Filetype: "image/png",
 		Filename: title + imgExt,
 		File:     file,
 		Channels: []string{channel},
+	})
+	if err != nil {
+		return fmt.Errorf("can not upload file: %v", err)
 	}
-	_, err := api.UploadFile(params)
-	return err
+
+	return nil
 }
