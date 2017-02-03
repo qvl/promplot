@@ -7,7 +7,7 @@ import (
 )
 
 // Slack posts a file to a Slack channel.
-func Slack(token, channel, file, title string) error {
+func Slack(token, channel, file, name, title string) error {
 	api := slack.New(token)
 
 	_, _, err := api.PostMessage(channel, "New Plot:", slack.PostMessageParameters{
@@ -23,8 +23,8 @@ func Slack(token, channel, file, title string) error {
 
 	_, err = api.UploadFile(slack.FileUploadParameters{
 		Title:    title,
-		Filetype: "image/png",
-		Filename: title + imgExt,
+		Filetype: "image/" + ImgExt,
+		Filename: name + ImgExt,
 		File:     file,
 		Channels: []string{channel},
 	})

@@ -7,7 +7,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strconv"
 	"time"
 
 	"qvl.io/promplot/flags"
@@ -22,7 +24,9 @@ const (
 Usage: %s [flags...]
 
 Create and deliver plots from your Prometheus metrics.
-Currently only the Slack transport is implemented.
+
+Save plot to file or send it right to a slack channel.
+At least one of -dir or -slack must be set.
 
 
 Flags:
@@ -35,15 +39,23 @@ const step = 100
 
 func main() {
 	var (
-		silent      = flag.Bool("silent", false, "Suppress all output.")
-		versionFlag = flag.Bool("version", false, "Print binary version.")
+		silent      = flag.Bool("silent", false, "Optional. Suppress all output.")
+		versionFlag = flag.Bool("version", false, "Optional. Print binary version.")
 		promServer  = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
 		queryTime   = flags.UnixTime("time", time.Now(), "Required. Time for query (default is now). Format like the default format of the Unix date command.")
 		duration    = flag.Duration("range", 0, "Required. Time to look back to. Format: 12h34m56s.")
-		title       = flag.String("title", "Prometheus metrics", "Title of graph.")
-		slackToken  = flag.String("slack", "", "Required. Slack API token (https://api.slack.com/docs/oauth-test-tokens).")
-		channel     = flag.String("channel", "", "Required. Slack channel to post to.")
+		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
+		name        = flag.String("name", "promplot-"+strconv.FormatInt(time.Now().Unix(), 10), "Optional. Image file name. '.png' is appended, so don't include it here.")
+	)
+
+	var (
+		dir = flag.String("dir", "", "Directory to save plot to. Set to save plot as local file.")
+	)
+
+	var (
+		slackToken = flag.String("slack", "", "Slack API token (https://api.slack.com/docs/oauth-test-tokens). Set to post plot to Slack.")
+		channel    = flag.String("channel", "", "Required when -slack is set. Slack channel to post to.")
 	)
 
 	flag.Usage = func() {
@@ -58,8 +70,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Required flag
-	if *promServer == "" || *query == "" || *duration == 0 || *slackToken == "" || *channel == "" {
+	// Required flags
+	if *promServer == "" || *query == "" || *duration == 0 || (*dir == "" && (*slackToken == "" || *channel == "")) {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -71,7 +83,7 @@ func main() {
 		}
 	}
 
-	// Fetch
+	// Fetch from Prometheus
 	log("Querying Prometheus \"%s\"", *query)
 	metrics, err := promplot.Metrics(*promServer, *query, queryTime(), *duration, step)
 	fatal(err, "failed getting metrics")
@@ -79,17 +91,33 @@ func main() {
 	// Plot
 	log("Creating plot \"%s\"", *title)
 	file, err := promplot.Plot(metrics, *title)
-	defer cleanup(file)
+	defer cleanup(file, *dir == "")
 	fatal(err, "failed creating plot")
 
-	// Upload
-	log("Uploading to Slack channel \"%s\"", *channel)
-	fatal(promplot.Slack(*slackToken, *channel, file, *title), "failed creating plot")
+	// Save local file
+	if *dir != "" {
+		dest := filepath.Join(*dir, *name+promplot.ImgExt)
+		log("Saving to '%s'", dest)
+		if err = os.Rename(file, dest); err != nil {
+			log("failed saving local file: ", err)
+		} else {
+			file = dest
+		}
+	}
+
+	// Upload to Slack
+	if *slackToken != "" {
+		log("Uploading to Slack channel \"%s\"", *channel)
+		fatal(promplot.Slack(*slackToken, *channel, file, *name, *title), "failed creating plot")
+	}
 
 	log("Done")
 }
 
-func cleanup(file string) {
+func cleanup(file string, dirty bool) {
+	if !dirty {
+		return
+	}
 	if file == "" {
 		return
 	}

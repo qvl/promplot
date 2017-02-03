@@ -56,7 +56,7 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 		p.Legend.Top = true
 	}
 
-	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+imgExt)
+	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
 
 	if err := p.Save(10*vg.Inch, 10*vg.Inch, file); err != nil {
 		return "", fmt.Errorf("failed saving plot: %v", err)
