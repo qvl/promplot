@@ -46,7 +46,7 @@ func main() {
 		queryTime   = flags.UnixTime("time", time.Now(), "Required. Time for query (default is now). Format like the default format of the Unix date command.")
 		duration    = flag.Duration("range", 0, "Required. Time to look back to. Format: 12h34m56s.")
 		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
-		name        = flag.String("name", "promplot-"+strconv.FormatInt(time.Now().Unix(), 10), "Optional. Image file name. '.png' is appended, so don't include it here.")
+		name        = flag.String("name", "promplot-"+strconv.FormatInt(time.Now().Unix(), 10), "Optional. Image file name. '"+promplot.ImgExt+"' is appended, so don't include it here.")
 	)
 
 	var (
