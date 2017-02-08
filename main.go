@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -26,7 +27,7 @@ Usage: %s [flags...]
 Create and deliver plots from your Prometheus metrics.
 
 Save plot to file or send it right to a slack channel.
-At least one of -dir or -slack must be set.
+At least one of -slack, -dir or -stdout must be set.
 
 
 Flags:
@@ -50,7 +51,8 @@ func main() {
 	)
 
 	var (
-		dir = flag.String("dir", "", "Directory to save plot to. Set to save plot as local file.")
+		dir    = flag.String("dir", "", "Directory to save plot to. Set to save plot as local file.")
+		stdout = flag.Bool("stdout", false, "Pipe image data to stdout.")
 	)
 
 	var (
@@ -71,7 +73,7 @@ func main() {
 	}
 
 	// Required flags
-	if *promServer == "" || *query == "" || *duration == 0 || (*dir == "" && (*slackToken == "" || *channel == "")) {
+	if *promServer == "" || *query == "" || *duration == 0 || (*dir == "" && !*stdout && (*slackToken == "" || *channel == "")) {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -93,6 +95,15 @@ func main() {
 	file, err := promplot.Plot(metrics, *title)
 	defer cleanup(file, *dir == "")
 	fatal(err, "failed creating plot")
+
+	// Write to stdout
+	if *stdout {
+		log("Writing to stdout")
+		f, err := os.Open(file)
+		fatal(err, "failed opening tmp file")
+		_, err = io.Copy(os.Stdout, f)
+		fatal(err, "failed copying to stdout")
+	}
 
 	// Save local file
 	if *dir != "" {

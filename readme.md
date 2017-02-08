@@ -34,6 +34,8 @@ But feel free to [add a new one](#development)!
           Optional. Suppress all output.
       -slack string
           Slack API token (https://api.slack.com/docs/oauth-test-tokens). Set to post plot to Slack.
+      -stdout
+            Pipe image data to stdout.
       -time value
           Required. Time for query (default is now). Format like the default format of the Unix date command.
       -title string
