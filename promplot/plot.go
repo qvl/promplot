@@ -46,7 +46,8 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 	p.Legend.YOffs = 15 * vg.Millimeter
 
 	// Color palette for drawing lines
-	palette, err := brewer.GetPalette(brewer.TypeAny, "Dark2", max(len(metrics), 3))
+	paletteSize := 8
+	palette, err := brewer.GetPalette(brewer.TypeAny, "Dark2", paletteSize)
 	if err != nil {
 		return "", fmt.Errorf("cannot get color palette: %v", err)
 	}
@@ -68,7 +69,7 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 			return "", fmt.Errorf("failed creating line: %v", err)
 		}
 		l.LineStyle.Width = vg.Points(1)
-		l.LineStyle.Color = colors[s]
+		l.LineStyle.Color = colors[s%paletteSize]
 
 		p.Add(l)
 		if len(metrics) > 1 {
@@ -86,11 +87,4 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 	}
 
 	return file, nil
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
