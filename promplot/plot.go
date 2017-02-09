@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -14,6 +15,9 @@ import (
 	"github.com/prometheus/common/model"
 )
 
+// Only show important part of metric name
+var labelText = regexp.MustCompile("\\{(.*)\\}")
+
 // Plot creates a plot from metric data and saves it to a temporary file.
 // It's the callers responsibility to remove the returned file when no longer needed.
 func Plot(metrics model.Matrix, title string) (string, error) {
@@ -22,12 +26,27 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 		return "", fmt.Errorf("failed creating new plot: %v", err)
 	}
 
-	p.Title.Text = title
-	p.X.Label.Text = "Time"
-	p.Y.Label.Text = "Value"
-	p.X.Tick.Marker = plot.TimeTicks{Format: "2006-01-02\n15:04"}
+	titleFont, err := vg.MakeFont("Helvetica-Bold", vg.Centimeter)
+	if err != nil {
+		return "", fmt.Errorf("failed creating font: %v", err)
+	}
+	textFont, err := vg.MakeFont("Helvetica", 3*vg.Millimeter)
+	if err != nil {
+		return "", fmt.Errorf("failed creating font: %v", err)
+	}
 
-	palette, err := brewer.GetPalette(brewer.TypeAny, "Spectral", max(len(metrics), 3))
+	p.Title.Text = title
+	p.Title.Font = titleFont
+	p.Title.Padding = 2 * vg.Centimeter
+	p.X.Tick.Marker = plot.TimeTicks{Format: "2006-01-02\n15:04"}
+	p.X.Tick.Label.Font = textFont
+	p.Y.Tick.Label.Font = textFont
+	p.Legend.Font = textFont
+	p.Legend.Top = true
+	p.Legend.YOffs = 15 * vg.Millimeter
+
+	// Color palette for drawing lines
+	palette, err := brewer.GetPalette(brewer.TypeAny, "Dark2", max(len(metrics), 3))
 	if err != nil {
 		return "", fmt.Errorf("cannot get color palette: %v", err)
 	}
@@ -52,13 +71,12 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 		l.LineStyle.Color = colors[s]
 
 		p.Add(l)
-		p.Legend.Add(sample.Metric.String(), l)
-		p.Legend.Top = true
+		p.Legend.Add(labelText.FindStringSubmatch(sample.Metric.String())[1], l)
 	}
 
 	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
 
-	if err := p.Save(10*vg.Inch, 10*vg.Inch, file); err != nil {
+	if err := p.Save(24*vg.Centimeter, 20*vg.Centimeter, file); err != nil {
 		return "", fmt.Errorf("failed saving plot: %v", err)
 	}
 
