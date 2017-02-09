@@ -71,7 +71,12 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 		l.LineStyle.Color = colors[s]
 
 		p.Add(l)
-		p.Legend.Add(labelText.FindStringSubmatch(sample.Metric.String())[1], l)
+		if len(metrics) > 1 {
+			m := labelText.FindStringSubmatch(sample.Metric.String())
+			if m != nil {
+				p.Legend.Add(m[1], l)
+			}
+		}
 	}
 
 	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
