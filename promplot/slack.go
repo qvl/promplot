@@ -10,12 +10,9 @@ import (
 func Slack(token, channel, file, name, title string) error {
 	api := slack.New(token)
 
-	_, _, err := api.PostMessage(channel, "New Plot:", slack.PostMessageParameters{
+	_, _, err := api.PostMessage(channel, "Promplot: "+title, slack.PostMessageParameters{
 		Username:  "Promplot",
 		IconEmoji: ":chart_with_upwards_trend:",
-		Attachments: []slack.Attachment{{
-			Title: title,
-		}},
 	})
 	if err != nil {
 		return fmt.Errorf("can not post message: %v", err)
