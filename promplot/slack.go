@@ -10,7 +10,7 @@ import (
 func Slack(token, channel, file, name, title string) error {
 	api := slack.New(token)
 
-	_, _, err := api.PostMessage(channel, "Promplot: "+title, slack.PostMessageParameters{
+	_, _, err := api.PostMessage(channel, title, slack.PostMessageParameters{
 		Username:  "Promplot",
 		IconEmoji: ":chart_with_upwards_trend:",
 	})
