@@ -35,12 +35,12 @@ func TestUnixTime(t *testing.T) {
 			t.Errorf("parsing %s should have failed", tt.text)
 			continue
 		}
-		if u.time.Equal(tt.parsed) {
+		if time.Time(u).Equal(tt.parsed) {
 			t.Errorf(`
 %d.
 Input:    %s
 Expected: %v
-Got       %v`, i, tt.text, tt.parsed, u.time)
+Got       %v`, i, tt.text, tt.parsed, u)
 		}
 	}
 

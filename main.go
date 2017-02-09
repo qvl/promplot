@@ -87,7 +87,7 @@ func main() {
 
 	// Fetch from Prometheus
 	log("Querying Prometheus \"%s\"", *query)
-	metrics, err := promplot.Metrics(*promServer, *query, queryTime(), *duration, step)
+	metrics, err := promplot.Metrics(*promServer, *query, *queryTime, *duration, step)
 	fatal(err, "failed getting metrics")
 
 	// Plot
