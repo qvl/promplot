@@ -44,32 +44,6 @@ But feel free to [add a new one](#development)!
             Optional. Print binary version.
 
 
-## Example
-
-It's simple to create a shell script for multiple plots:
-
-```sh
-common="-url $promurl -channel stats -slack $slacktoken"
-
-promplot $common \
-  -title "Free memory in MB" \
-  -query "node_memory_MemFree /1024 /1024" \
-  -range "24h"
-
-promplot $common \
-  -title "Free disk space in GB" \
-  -query "node_filesystem_free /1024 /1024 /1024" \
-  -range "24h"
-
-promplot $common \
-  -title "Open file descriptors" \
-  -query "process_open_fds" \
-  -range "24h"
-```
-
-And with a scheduler like [sleepto](https://qvl.io/sleepto) you can easily automate this script to run every day or once a week.
-
-
 ## Install
 
 - With [Go](https://golang.org/):
@@ -84,6 +58,57 @@ brew install qvl/tap/promplot
 
 - Download from https://github.com/qvl/promplot/releases
 
+
+## Examples
+
+It's simple to create a shell script for multiple plots:
+
+### Slack
+
+```sh
+common="-url $promurl -channel stats -slack $slacktoken -range 24h"
+
+promplot $common \
+  -title "Free memory in MB" \
+  -query "node_memory_MemFree /1024 /1024"
+
+promplot $common \
+  -title "Free disk space in GB" \
+  -query "node_filesystem_free /1024 /1024 /1024"
+  -range "24h"
+
+promplot $common \
+  -title "Open file descriptors" \
+  -query "process_open_fds"
+```
+
+And with a scheduler like [sleepto](https://qvl.io/sleepto) you can easily automate this script to run every day or once a week.
+
+
+### Mailing results
+
+There is no mail transport built into promplot but you can use the Linux `mail` utility instead:
+
+```sh
+tmp="$(mktemp -d)"
+common="-url $promurl -range 24h"
+
+promplot $common \
+  -title "Free memory in MB" \
+  -query "node_memory_MemFree /1024 /1024" \
+  -file ${tmp}/memory.png
+
+promplot $common \
+  -title "Open file descriptors" \
+  -query "process_open_fds" \
+  -file ${tmp}/fds.png
+
+echo "Your daily report is here." | mail \
+  -s "Daily server stats" \
+  -a ${tmp}/memory.png \
+  -a ${tmp}/fds.png \
+  name@example.com
+```
 
 
 ## Development
