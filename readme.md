@@ -16,34 +16,32 @@ But feel free to [add a new one](#development)!
     Create and deliver plots from your Prometheus metrics.
 
     Save plot to file or send it right to a slack channel.
-    At least one of -dir or -slack must be set.
+    At least one of -slack or -file must be set.
 
 
     Flags:
       -channel string
-          Required when -slack is set. Slack channel to post to.
-      -dir string
-          Directory to save plot to. Set to save plot as local file.
-      -name string
-          Optional. Image file name. '.png' is appended, so don't include it here. (default "promplot-<unixtime>")
+            Required when -slack is set. Slack channel to post to.
+      -file string
+            File to save image to. Should have same extension as specified -format. Set -file to - to write to stdout.
+      -format string
+            Optional. Image format. For possible values see: https://godoc.org/github.com/gonum/plot/vg/draw#NewFormattedCanvas (default "png")
       -query string
-          Required. PQL query.
+            Required. PQL query.
       -range duration
-          Required. Time to look back to. Format: 12h34m56s.
+            Required. Time to look back to. Format: 12h34m56s.
       -silent
-          Optional. Suppress all output.
+            Optional. Suppress all output.
       -slack string
-          Slack API token (https://api.slack.com/docs/oauth-test-tokens). Set to post plot to Slack.
-      -stdout
-            Pipe image data to stdout.
+            Slack API token (https://api.slack.com/docs/oauth-test-tokens). Set to post plot to Slack.
       -time value
-          Required. Time for query (default is now). Format like the default format of the Unix date command.
+            Required. Time for query (default is now). Format like the default format of the Unix date command. (default Fri Feb 10 14:39:36 CET 2017)
       -title string
-          Optional. Title of graph. (default "Prometheus metrics")
+            Optional. Title of graph. (default "Prometheus metrics")
       -url string
-          Required. URL of Prometheus server.
+            Required. URL of Prometheus server.
       -version
-          Optional. Print binary version.
+            Optional. Print binary version.
 
 
 ## Example

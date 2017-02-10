@@ -8,9 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"runtime"
-	"strconv"
 	"time"
 
 	"qvl.io/promplot/flags"
@@ -27,7 +25,7 @@ Usage: %s [flags...]
 Create and deliver plots from your Prometheus metrics.
 
 Save plot to file or send it right to a slack channel.
-At least one of -slack, -dir or -stdout must be set.
+At least one of -slack or -file must be set.
 
 
 Flags:
@@ -47,12 +45,12 @@ func main() {
 		queryTime   = flags.UnixTime("time", time.Now(), "Required. Time for query (default is now). Format like the default format of the Unix date command.")
 		duration    = flag.Duration("range", 0, "Required. Time to look back to. Format: 12h34m56s.")
 		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
-		name        = flag.String("name", "promplot-"+strconv.FormatInt(time.Now().Unix(), 10), "Optional. Image file name. '"+promplot.ImgExt+"' is appended, so don't include it here.")
+		//
+		format = flag.String("format", "png", "Optional. Image format. For possible values see: https://godoc.org/github.com/gonum/plot/vg/draw#NewFormattedCanvas")
 	)
 
 	var (
-		dir    = flag.String("dir", "", "Directory to save plot to. Set to save plot as local file.")
-		stdout = flag.Bool("stdout", false, "Pipe image data to stdout.")
+		file = flag.String("file", "", "File to save image to. Should have same extension as specified -format. Set -file to - to write to stdout.")
 	)
 
 	var (
@@ -73,7 +71,7 @@ func main() {
 	}
 
 	// Required flags
-	if *promServer == "" || *query == "" || *duration == 0 || (*dir == "" && !*stdout && (*slackToken == "" || *channel == "")) {
+	if *promServer == "" || *query == "" || *duration == 0 || (*file == "" && (*slackToken == "" || *channel == "")) {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -92,43 +90,42 @@ func main() {
 
 	// Plot
 	log("Creating plot \"%s\"", *title)
-	file, err := promplot.Plot(metrics, *title)
-	defer cleanup(file, *dir == "")
+	tmp, err := promplot.Plot(metrics, *title, *format)
+	defer cleanup(tmp)
 	fatal(err, "failed creating plot")
 
-	// Write to stdout
-	if *stdout {
-		log("Writing to stdout")
-		f, err := os.Open(file)
+	// Write to file
+	if *file != "" {
+		f, err := os.Open(tmp)
 		fatal(err, "failed opening tmp file")
-		_, err = io.Copy(os.Stdout, f)
-		fatal(err, "failed copying to stdout")
-	}
-
-	// Save local file
-	if *dir != "" {
-		dest := filepath.Join(*dir, *name+promplot.ImgExt)
-		log("Saving to '%s'", dest)
-		if err = os.Rename(file, dest); err != nil {
-			log("failed saving local file: ", err)
+		defer func() {
+			if err := f.Close(); err != nil {
+				panic(fmt.Errorf("failed closing file: %v", err))
+			}
+		}()
+		var out *os.File
+		if *file == "-" {
+			out = os.Stdout
+			log("Writing to stdout")
 		} else {
-			file = dest
+			out, err = os.Create(*file)
+			fatal(err, "failed creating file")
+			log("Writing to '%s'", *file)
 		}
+		_, err = io.Copy(out, f)
+		fatal(err, "failed copying file")
 	}
 
 	// Upload to Slack
 	if *slackToken != "" {
 		log("Uploading to Slack channel \"%s\"", *channel)
-		fatal(promplot.Slack(*slackToken, *channel, file, *name, *title), "failed creating plot")
+		fatal(promplot.Slack(*slackToken, *channel, tmp, *title), "failed creating plot")
 	}
 
 	log("Done")
 }
 
-func cleanup(file string, dirty bool) {
-	if !dirty {
-		return
-	}
+func cleanup(file string) {
 	if file == "" {
 		return
 	}

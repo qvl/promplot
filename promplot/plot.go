@@ -21,7 +21,7 @@ var labelText = regexp.MustCompile("\\{(.*)\\}")
 
 // Plot creates a plot from metric data and saves it to a temporary file.
 // It's the callers responsibility to remove the returned file when no longer needed.
-func Plot(metrics model.Matrix, title string) (string, error) {
+func Plot(metrics model.Matrix, title, format string) (string, error) {
 	p, err := plot.New()
 	if err != nil {
 		return "", fmt.Errorf("failed creating new plot: %v", err)
@@ -85,14 +85,14 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 	margin := 6 * vg.Millimeter
 	width := 24 * vg.Centimeter
 	height := 20 * vg.Centimeter
-	c, err := draw.NewFormattedCanvas(width, height, imgFormat)
+	c, err := draw.NewFormattedCanvas(width, height, format)
 	if err != nil {
 		return "", fmt.Errorf("failed creating image canvas: %v", err)
 	}
 	p.Draw(draw.Crop(draw.New(c), margin, -margin, margin, -margin))
 
 	// Save to temp file
-	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
+	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+"."+format)
 	f, err := os.Create(file)
 	if err != nil {
 		return "", fmt.Errorf("failed creating plot file: %v", err)
