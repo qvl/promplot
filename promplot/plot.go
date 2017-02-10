@@ -12,6 +12,7 @@ import (
 	"github.com/gonum/plot/palette/brewer"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 	"github.com/prometheus/common/model"
 )
 
@@ -80,9 +81,28 @@ func Plot(metrics model.Matrix, title string) (string, error) {
 		}
 	}
 
-	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
+	// Draw plot in canvas with margin
+	margin := 6 * vg.Millimeter
+	width := 24 * vg.Centimeter
+	height := 20 * vg.Centimeter
+	c, err := draw.NewFormattedCanvas(width, height, imgFormat)
+	if err != nil {
+		return "", fmt.Errorf("failed creating image canvas: %v", err)
+	}
+	p.Draw(draw.Crop(draw.New(c), margin, -margin, margin, -margin))
 
-	if err := p.Save(24*vg.Centimeter, 20*vg.Centimeter, file); err != nil {
+	// Save to temp file
+	file := filepath.Join(os.TempDir(), "promplot-"+strconv.FormatInt(time.Now().Unix(), 10)+ImgExt)
+	f, err := os.Create(file)
+	if err != nil {
+		return "", fmt.Errorf("failed creating plot file: %v", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(fmt.Errorf("failed closing plot file: %v", err))
+		}
+	}()
+	if _, err = c.WriteTo(f); err != nil {
 		return "", fmt.Errorf("failed saving plot: %v", err)
 	}
 
