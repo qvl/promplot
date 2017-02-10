@@ -43,7 +43,7 @@ func main() {
 		promServer  = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
 		queryTime   = flags.UnixTime("time", time.Now(), "Required. Time for query (default is now). Format like the default format of the Unix date command.")
-		duration    = flag.Duration("range", 0, "Required. Time to look back to. Format: 12h34m56s.")
+		duration    = flags.Duration("range", 0, "Required. Time to look back to. Format: 5d12h34m56s")
 		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
 		//
 		format = flag.String("format", "png", "Optional. Image format. For possible values see: https://godoc.org/github.com/gonum/plot/vg/draw#NewFormattedCanvas")
