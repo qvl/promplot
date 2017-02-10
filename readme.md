@@ -100,6 +100,15 @@ When changing external dependencies please use [godep](https://github.com/tools/
 Push a new Git tag and [GoReleaser](https://github.com/goreleaser/releaser) will automatically create a release.
 
 
+## Thank you
+
+to these helpful open source projects promplot is built on top of:
+
+- [Prometheus Golang client](https://github.com/prometheus/client_golang)
+- [Slack API package](https://github.com/nlopes/slack)
+- [Gonum Plot](https://github.com/gonum/plot)
+
+
 ## License
 
 [MIT](./license)
