@@ -8,7 +8,6 @@ import (
 type OAuthResponseIncomingWebhook struct {
 	URL              string `json:"url"`
 	Channel          string `json:"channel"`
-	ChannelID        string `json:"channel_id,omitempty"`
 	ConfigurationURL string `json:"configuration_url"`
 }
 
@@ -24,7 +23,6 @@ type OAuthResponse struct {
 	TeamID          string                       `json:"team_id"`
 	IncomingWebhook OAuthResponseIncomingWebhook `json:"incoming_webhook"`
 	Bot             OAuthResponseBot             `json:"bot"`
-	UserID          string                       `json:"user_id,omitempty"`
 	SlackResponse
 }
 

@@ -44,16 +44,6 @@ type Login struct {
 	Region    string `json:"region"`
 }
 
-type BillableInfoResponse struct {
-	BillableInfo map[string]BillingActive `json:"billable_info"`
-	SlackResponse
-
-}
-
-type BillingActive struct {
-	BillingActive bool `json:"billing_active"`
-}
-
 // AccessLogParameters contains all the parameters necessary (including the optional ones) for a GetAccessLogs() request
 type AccessLogParameters struct {
 	Count         int
@@ -81,20 +71,6 @@ func teamRequest(path string, values url.Values, debug bool) (*TeamResponse, err
 	}
 
 	return response, nil
-}
-
-func billableInfoRequest(path string, values url.Values, debug bool) (map[string]BillingActive, error) {
-	response := &BillableInfoResponse{}
-	err := post(path, values, response, debug)
-	if err != nil {
-		return nil, err
-	}
-
-	if !response.Ok {
-		return nil, errors.New(response.Error)
-	}
-
-	return response.BillableInfo, nil
 }
 
 func accessLogsRequest(path string, values url.Values, debug bool) (*LoginResponse, error) {
@@ -141,20 +117,3 @@ func (api *Client) GetAccessLogs(params AccessLogParameters) ([]Login, *Paging, 
 	return response.Logins, &response.Paging, nil
 }
 
-func (api *Client) GetBillableInfo(user string) (map[string]BillingActive, error) {
-	values := url.Values{
-		"token": {api.config.token},
-		"user": {user},
-	}
-
-	return billableInfoRequest("team.billableInfo", values, api.debug)
-}
-
-// GetBillableInfoForTeam returns the billing_active status of all users on the team.
-func (api *Client) GetBillableInfoForTeam() (map[string]BillingActive, error) {
-	values := url.Values{
-		"token": {api.config.token},
-	}
-
-	return billableInfoRequest("team.billableInfo", values, api.debug)
-}
