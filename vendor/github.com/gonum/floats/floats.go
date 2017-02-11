@@ -15,7 +15,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/gonum/internal/asm"
+	"github.com/gonum/internal/asm/f64"
 )
 
 // Add adds, element-wise, the elements of s and dst, and stores in dst.
@@ -24,7 +24,7 @@ func Add(dst, s []float64) {
 	if len(dst) != len(s) {
 		panic("floats: length of the slices do not match")
 	}
-	asm.DaxpyUnitaryTo(dst, 1, s, dst)
+	f64.AxpyUnitaryTo(dst, 1, s, dst)
 }
 
 // AddTo adds, element-wise, the elements of s and t and
@@ -36,7 +36,7 @@ func AddTo(dst, s, t []float64) []float64 {
 	if len(dst) != len(s) {
 		panic("floats: length of destination does not match length of adder")
 	}
-	asm.DaxpyUnitaryTo(dst, 1, s, t)
+	f64.AxpyUnitaryTo(dst, 1, s, t)
 	return dst
 }
 
@@ -53,7 +53,7 @@ func AddScaled(dst []float64, alpha float64, s []float64) {
 	if len(dst) != len(s) {
 		panic("floats: length of destination and source to not match")
 	}
-	asm.DaxpyUnitaryTo(dst, alpha, s, dst)
+	f64.AxpyUnitaryTo(dst, alpha, s, dst)
 }
 
 // AddScaledTo performs dst = y + alpha * s, where alpha is a scalar,
@@ -65,7 +65,7 @@ func AddScaledTo(dst, y []float64, alpha float64, s []float64) []float64 {
 	if len(dst) != len(s) || len(dst) != len(y) {
 		panic("floats: lengths of slices do not match")
 	}
-	asm.DaxpyUnitaryTo(dst, alpha, s, y)
+	f64.AxpyUnitaryTo(dst, alpha, s, y)
 	return dst
 }
 
@@ -131,11 +131,7 @@ func CumProd(dst, s []float64) []float64 {
 	if len(dst) == 0 {
 		return dst
 	}
-	dst[0] = s[0]
-	for i := 1; i < len(s); i++ {
-		dst[i] = dst[i-1] * s[i]
-	}
-	return dst
+	return f64.CumProd(dst, s)
 }
 
 // CumSum finds the cumulative sum of the first i elements in
@@ -151,11 +147,7 @@ func CumSum(dst, s []float64) []float64 {
 	if len(dst) == 0 {
 		return dst
 	}
-	dst[0] = s[0]
-	for i := 1; i < len(s); i++ {
-		dst[i] = dst[i-1] + s[i]
-	}
-	return dst
+	return f64.CumSum(dst, s)
 }
 
 // Distance computes the L-norm of s - t. See Norm for special cases.
@@ -203,9 +195,7 @@ func Div(dst, s []float64) {
 	if len(dst) != len(s) {
 		panic("floats: slice lengths do not match")
 	}
-	for i, val := range s {
-		dst[i] /= val
-	}
+	f64.Div(dst, s)
 }
 
 // DivTo performs element-wise division s / t
@@ -215,10 +205,7 @@ func DivTo(dst, s, t []float64) []float64 {
 	if len(s) != len(t) || len(dst) != len(t) {
 		panic("floats: slice lengths do not match")
 	}
-	for i, val := range t {
-		dst[i] = s[i] / val
-	}
-	return dst
+	return f64.DivTo(dst, s, t)
 }
 
 // Dot computes the dot product of s1 and s2, i.e.
@@ -228,7 +215,7 @@ func Dot(s1, s2 []float64) float64 {
 	if len(s1) != len(s2) {
 		panic("floats: lengths of the slices do not match")
 	}
-	return asm.DdotUnitary(s1, s2)
+	return f64.DotUnitary(s1, s2)
 }
 
 // Equal returns true if the slices have equal lengths and
@@ -699,7 +686,7 @@ func Same(s, t []float64) bool {
 // Scale multiplies every element in dst by the scalar c.
 func Scale(c float64, dst []float64) {
 	if len(dst) > 0 {
-		asm.DscalUnitary(c, dst)
+		f64.ScalUnitary(c, dst)
 	}
 }
 
@@ -729,7 +716,7 @@ func Sub(dst, s []float64) {
 	if len(dst) != len(s) {
 		panic("floats: length of the slices do not match")
 	}
-	asm.DaxpyUnitaryTo(dst, -1, s, dst)
+	f64.AxpyUnitaryTo(dst, -1, s, dst)
 }
 
 // SubTo subtracts, element-wise, the elements of t from s and
@@ -741,7 +728,7 @@ func SubTo(dst, s, t []float64) []float64 {
 	if len(dst) != len(s) {
 		panic("floats: length of destination does not match length of subtractor")
 	}
-	asm.DaxpyUnitaryTo(dst, -1, t, s)
+	f64.AxpyUnitaryTo(dst, -1, t, s)
 	return dst
 }
 

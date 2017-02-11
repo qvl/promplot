@@ -1,0 +1,16 @@
+{
+    "dependencies": {
+        "github.com/gonum/plot": {
+            "branch": "master"
+        },
+        "github.com/nlopes/slack": {
+            "branch": "master"
+        },
+        "github.com/prometheus/client_golang": {
+            "branch": "master"
+        },
+        "github.com/prometheus/common": {
+            "branch": "master"
+        }
+    }
+}
