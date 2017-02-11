@@ -125,7 +125,7 @@ And with a scheduler like [sleepto](https://qvl.io/sleepto) you can easily autom
 
 Make sure to use `gofmt` and create a [Pull Request](https://github.com/qvl/promplot/pulls).
 
-When changing external dependencies please use [godep](https://github.com/tools/godep/) to vendor them.
+When changing external dependencies please use [dep](https://github.com/golang/dep/) to vendor them.
 
 
 ### Releasing
