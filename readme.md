@@ -7,6 +7,15 @@
 
 `promplot` is an opinionated tool to create plots from your [Prometheus](https://prometheus.io/) metrics and automatically sends them to you.
 
+
+**Slack example:**
+
+``` sh
+promplot -title "Open File Descriptors" -query "process_open_fds" -range "7d" -url $promurl -slack $slacktoken -channel stats
+```
+
+![Demo Screenshot](screenshot.png)
+
 Currently the only implemented transport is [Slack](https://slack.com/).
 But feel free to [add a new one](#development)!
 
@@ -82,8 +91,6 @@ promplot $common \
   -query "process_open_fds"
 ```
 
-And with a scheduler like [sleepto](https://qvl.io/sleepto) you can easily automate this script to run every day or once a week.
-
 
 ### Mailing results
 
@@ -111,6 +118,9 @@ echo "Your daily report is here." | mail \
 ```
 
 
+And with a scheduler like [sleepto](https://qvl.io/sleepto) you can easily automate this script to run every day or once a week.
+
+
 ## Development
 
 Make sure to use `gofmt` and create a [Pull Request](https://github.com/qvl/promplot/pulls).
@@ -127,9 +137,9 @@ Push a new Git tag and [GoReleaser](https://github.com/goreleaser/releaser) will
 
 to these helpful open source projects promplot is built on top of:
 
+- [Gonum Plot](https://github.com/gonum/plot)
 - [Prometheus Golang client](https://github.com/prometheus/client_golang)
 - [Slack API package](https://github.com/nlopes/slack)
-- [Gonum Plot](https://github.com/gonum/plot)
 
 
 ## License
