@@ -84,12 +84,12 @@ func main() {
 	}
 
 	// Fetch from Prometheus
-	log("Querying Prometheus \"%s\"", *query)
+	log("Querying Prometheus %q", *query)
 	metrics, err := promplot.Metrics(*promServer, *query, *queryTime, *duration, step)
 	fatal(err, "failed getting metrics")
 
 	// Plot
-	log("Creating plot \"%s\"", *title)
+	log("Creating plot %q", *title)
 	tmp, err := promplot.Plot(metrics, *title, *format)
 	defer cleanup(tmp)
 	fatal(err, "failed creating plot")
@@ -118,7 +118,7 @@ func main() {
 
 	// Upload to Slack
 	if *slackToken != "" {
-		log("Uploading to Slack channel \"%s\"", *channel)
+		log("Uploading to Slack channel %q", *channel)
 		fatal(promplot.Slack(*slackToken, *channel, tmp, *title), "failed creating plot")
 	}
 
