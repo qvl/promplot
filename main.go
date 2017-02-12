@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -42,7 +43,7 @@ func main() {
 		versionFlag = flag.Bool("version", false, "Optional. Print binary version.")
 		promServer  = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
-		queryTime   = flags.UnixTime("time", time.Now(), "Required. Time for query (default is now). Format like the default format of the Unix date command.")
+		queryTime   = flags.UnixTime("time", time.Now(), "Time for query (default is now). Format like the default format of the Unix date command.")
 		duration    = flags.Duration("range", 0, "Required. Time to look back to. Format: 5d12h34m56s")
 		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
 		//
@@ -76,7 +77,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Loggin helper
+	// Logging helper
 	log := func(format string, a ...interface{}) {
 		if !*silent {
 			fmt.Fprintf(os.Stderr, format+"\n", a...)
@@ -90,46 +91,36 @@ func main() {
 
 	// Plot
 	log("Creating plot %q", *title)
-	tmp, err := promplot.Plot(metrics, *title, *format)
-	defer cleanup(tmp)
+	plot, err := promplot.Plot(metrics, *title, *format)
 	fatal(err, "failed creating plot")
 
 	// Write to file
 	if *file != "" {
-		f, err := os.Open(tmp)
-		fatal(err, "failed opening tmp file")
-		defer func() {
-			if err := f.Close(); err != nil {
-				panic(fmt.Errorf("failed closing file: %v", err))
-			}
-		}()
+		// Copy plot to be able to use it for Slack after
+		buf := new(bytes.Buffer)
+		t := io.TeeReader(plot, buf)
+		plot = buf
+
 		var out *os.File
 		if *file == "-" {
-			out = os.Stdout
 			log("Writing to stdout")
+			out = os.Stdout
 		} else {
+			log("Writing to '%s'", *file)
 			out, err = os.Create(*file)
 			fatal(err, "failed creating file")
-			log("Writing to '%s'", *file)
 		}
-		_, err = io.Copy(out, f)
+		_, err = io.Copy(out, t)
 		fatal(err, "failed copying file")
 	}
 
 	// Upload to Slack
 	if *slackToken != "" {
 		log("Uploading to Slack channel %q", *channel)
-		fatal(promplot.Slack(*slackToken, *channel, tmp, *title), "failed creating plot")
+		fatal(promplot.Slack(*slackToken, *channel, *title, plot), "failed creating plot")
 	}
 
 	log("Done")
-}
-
-func cleanup(file string) {
-	if file == "" {
-		return
-	}
-	fatal(os.Remove(file), "failed deleting file")
 }
 
 func fatal(err error, msg string) {
