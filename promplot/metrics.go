@@ -13,7 +13,7 @@ import (
 func Metrics(server, query string, queryTime time.Time, duration, step time.Duration) (model.Matrix, error) {
 	client, err := prometheus.New(prometheus.Config{Address: server})
 	if err != nil {
-		return nil, fmt.Errorf("failed creating Prometheus client: %v", err)
+		return nil, fmt.Errorf("failed to create Prometheus client: %v", err)
 	}
 
 	api := prometheus.NewQueryAPI(client)
@@ -23,7 +23,7 @@ func Metrics(server, query string, queryTime time.Time, duration, step time.Dura
 		Step:  duration / step,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed querying Prometheus: %v", err)
+		return nil, fmt.Errorf("failed to query Prometheus: %v", err)
 	}
 
 	metrics, ok := value.(model.Matrix)

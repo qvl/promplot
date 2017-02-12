@@ -23,16 +23,16 @@ var labelText = regexp.MustCompile("\\{(.*)\\}")
 func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
 	p, err := plot.New()
 	if err != nil {
-		return nil, fmt.Errorf("failed creating new plot: %v", err)
+		return nil, fmt.Errorf("failed to create new plot: %v", err)
 	}
 
 	titleFont, err := vg.MakeFont("Helvetica-Bold", vg.Centimeter)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating font: %v", err)
+		return nil, fmt.Errorf("failed to load font: %v", err)
 	}
 	textFont, err := vg.MakeFont("Helvetica", 3*vg.Millimeter)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating font: %v", err)
+		return nil, fmt.Errorf("failed to load font: %v", err)
 	}
 
 	p.Title.Text = title
@@ -49,7 +49,7 @@ func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
 	paletteSize := 8
 	palette, err := brewer.GetPalette(brewer.TypeAny, "Dark2", paletteSize)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get color palette: %v", err)
+		return nil, fmt.Errorf("failed to get color palette: %v", err)
 	}
 	colors := palette.Colors()
 
@@ -66,7 +66,7 @@ func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
 
 		l, err := plotter.NewLine(data)
 		if err != nil {
-			return nil, fmt.Errorf("failed creating line: %v", err)
+			return nil, fmt.Errorf("failed to create line: %v", err)
 		}
 		l.LineStyle.Width = vg.Points(1)
 		l.LineStyle.Color = colors[s%paletteSize]
@@ -86,13 +86,13 @@ func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
 	height := 20 * vg.Centimeter
 	c, err := draw.NewFormattedCanvas(width, height, format)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating image canvas: %v", err)
+		return nil, fmt.Errorf("failed to create canvas: %v", err)
 	}
 	p.Draw(draw.Crop(draw.New(c), margin, -margin, margin, -margin))
 
 	b := new(bytes.Buffer)
 	if _, err = c.WriteTo(b); err != nil {
-		return nil, fmt.Errorf("failed saving plot: %v", err)
+		return nil, fmt.Errorf("failed to save plot: %v", err)
 	}
 
 	return b, nil

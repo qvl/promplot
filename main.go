@@ -87,12 +87,12 @@ func main() {
 	// Fetch from Prometheus
 	log("Querying Prometheus %q", *query)
 	metrics, err := promplot.Metrics(*promServer, *query, *queryTime, *duration, step)
-	fatal(err, "failed getting metrics")
+	fatal(err, "failed to get metrics")
 
 	// Plot
 	log("Creating plot %q", *title)
 	plot, err := promplot.Plot(metrics, *title, *format)
-	fatal(err, "failed creating plot")
+	fatal(err, "failed to create plot")
 
 	// Write to file
 	if *file != "" {
@@ -108,16 +108,16 @@ func main() {
 		} else {
 			log("Writing to '%s'", *file)
 			out, err = os.Create(*file)
-			fatal(err, "failed creating file")
+			fatal(err, "failed to create file")
 		}
 		_, err = io.Copy(out, t)
-		fatal(err, "failed copying file")
+		fatal(err, "failed to copy to file")
 	}
 
 	// Upload to Slack
 	if *slackToken != "" {
 		log("Uploading to Slack channel %q", *channel)
-		fatal(promplot.Slack(*slackToken, *channel, *title, plot), "failed creating plot")
+		fatal(promplot.Slack(*slackToken, *channel, *title, plot), "failed to upload to Slack")
 	}
 
 	log("Done")
