@@ -89,7 +89,7 @@ func main() {
 		errs = append(errs, "missing flag: -channel")
 	}
 	if len(errs) > 0 {
-		fmt.Fprintf(os.Stderr, strings.Join(errs, "\n")+"\n\nFor more info see %s -h\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, strings.Join(errs, "\n")+"\n\nFor more info see %s -h\n", os.Args[0])
 		os.Exit(1)
 	}
 
