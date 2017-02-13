@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"qvl.io/promplot/flags"
@@ -39,10 +40,10 @@ func main() {
 	var (
 		silent      = flag.Bool("silent", false, "Optional. Suppress all output.")
 		versionFlag = flag.Bool("version", false, "Optional. Print binary version.")
-		promServer  = flag.String("url", "", "Required. URL of Prometheus server.")
+		promURL     = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
 		queryTime   = flags.UnixTime("time", time.Now(), "Time for query (default is now). Format like the default format of the Unix date command.")
-		duration    = flags.Duration("range", 0, "Required. Time to look back to. Format: 5d12h34m56s")
+		queryRange  = flags.Duration("range", 0, "Required. Time to look back to. Format: 5d12h34m56s")
 		title       = flag.String("title", "Prometheus metrics", "Optional. Title of graph.")
 		//
 		format = flag.String("format", "png", "Optional. Image format. For possible values see: https://godoc.org/github.com/gonum/plot/vg/draw#NewFormattedCanvas")
@@ -70,8 +71,25 @@ func main() {
 	}
 
 	// Required flags
-	if *promServer == "" || *query == "" || *duration == 0 || (*file == "" && (*slackToken == "" || *channel == "")) || !(*file == "" || *slackToken == "") {
-		flag.Usage()
+	var errs []string
+	if *promURL == "" {
+		errs = append(errs, "missing flag: -url")
+	}
+	if *query == "" {
+		errs = append(errs, "missing flag: -query")
+	}
+	if *queryRange == 0 {
+		errs = append(errs, "missing flag: -range")
+	}
+	if *file == "" && *slackToken == "" {
+		errs = append(errs, "one of -file or -slack must be set")
+	} else if *file != "" && *slackToken != "" {
+		errs = append(errs, "only one of -file or -slack can be set")
+	} else if *slackToken != "" && *channel == "" {
+		errs = append(errs, "missing flag: -channel")
+	}
+	if len(errs) > 0 {
+		fmt.Fprintf(os.Stderr, strings.Join(errs, "\n")+"\n\nFor more info see %s -h\n\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -84,7 +102,7 @@ func main() {
 
 	// Fetch from Prometheus
 	log("Querying Prometheus %q", *query)
-	metrics, err := promplot.Metrics(*promServer, *query, *queryTime, *duration, step)
+	metrics, err := promplot.Metrics(*promURL, *query, *queryTime, *queryRange, step)
 	fatal(err, "failed to get metrics")
 
 	// Plot
