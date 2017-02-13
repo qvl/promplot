@@ -4,7 +4,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -26,7 +25,7 @@ Usage: %s [flags...]
 Create and deliver plots from your Prometheus metrics.
 
 Save plot to file or send it right to a slack channel.
-At least one of -slack or -file must be set.
+One of -slack or -file must be set.
 
 
 Flags:
@@ -72,7 +71,7 @@ func main() {
 	}
 
 	// Required flags
-	if *promServer == "" || *query == "" || *duration == 0 || (*file == "" && (*slackToken == "" || *channel == "")) {
+	if *promServer == "" || *query == "" || *duration == 0 || (*file == "" && (*slackToken == "" || *channel == "")) || !(*file == "" || *slackToken == "") {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -96,11 +95,6 @@ func main() {
 
 	// Write to file
 	if *file != "" {
-		// Copy plot to be able to use it for Slack after
-		buf := new(bytes.Buffer)
-		t := io.TeeReader(plot, buf)
-		plot = buf
-
 		var out *os.File
 		if *file == "-" {
 			log("Writing to stdout")
@@ -110,12 +104,11 @@ func main() {
 			out, err = os.Create(*file)
 			fatal(err, "failed to create file")
 		}
-		_, err = io.Copy(out, t)
+		_, err = io.Copy(out, plot)
 		fatal(err, "failed to copy to file")
-	}
 
-	// Upload to Slack
-	if *slackToken != "" {
+		// Upload to Slack
+	} else {
 		log("Uploading to Slack channel %q", *channel)
 		fatal(promplot.Slack(*slackToken, *channel, *title, plot), "failed to upload to Slack")
 	}
