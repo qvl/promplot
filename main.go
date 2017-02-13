@@ -6,7 +6,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"runtime"
 	"time"
@@ -104,7 +103,7 @@ func main() {
 			out, err = os.Create(*file)
 			fatal(err, "failed to create file")
 		}
-		_, err = io.Copy(out, plot)
+		_, err = plot.WriteTo(out)
 		fatal(err, "failed to copy to file")
 
 		// Upload to Slack

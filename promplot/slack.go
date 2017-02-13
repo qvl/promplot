@@ -10,7 +10,7 @@ import (
 )
 
 // Slack posts a file to a Slack channel.
-func Slack(token, channel, title string, plot io.Reader) error {
+func Slack(token, channel, title string, plot io.WriterTo) error {
 	api := slack.New(token)
 
 	_, _, err := api.PostMessage(channel, title, slack.PostMessageParameters{
@@ -35,9 +35,9 @@ func Slack(token, channel, title string, plot io.Reader) error {
 			panic(fmt.Errorf("failed to delete tmp file: %v", err))
 		}
 	}()
-	_, err = io.Copy(f, plot)
+	_, err = plot.WriteTo(f)
 	if err != nil {
-		return fmt.Errorf("failed to copy plot to file: %v", err)
+		return fmt.Errorf("failed to write plot to file: %v", err)
 	}
 
 	_, err = api.UploadFile(slack.FileUploadParameters{

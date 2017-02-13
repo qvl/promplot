@@ -1,7 +1,6 @@
 package promplot
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"regexp"
@@ -20,7 +19,7 @@ var labelText = regexp.MustCompile("\\{(.*)\\}")
 
 // Plot creates a plot from metric data and saves it to a temporary file.
 // It's the callers responsibility to remove the returned file when no longer needed.
-func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
+func Plot(metrics model.Matrix, title, format string) (io.WriterTo, error) {
 	p, err := plot.New()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new plot: %v", err)
@@ -90,10 +89,5 @@ func Plot(metrics model.Matrix, title, format string) (io.Reader, error) {
 	}
 	p.Draw(draw.Crop(draw.New(c), margin, -margin, margin, -margin))
 
-	b := new(bytes.Buffer)
-	if _, err = c.WriteTo(b); err != nil {
-		return nil, fmt.Errorf("failed to save plot: %v", err)
-	}
-
-	return b, nil
+	return c, nil
 }
