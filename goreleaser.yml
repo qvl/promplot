@@ -1,12 +1,28 @@
-brew:
-  github: 
-    owner: qvl
-    name: homebrew-tap
-  folder: Formula
+homepage: &homepage https://qvl.io/promplot
+description: &description Create plots from Prometheus metrics and send them to you
 build:
   goos:
     - windows
     - darwin
     - linux
-  goarch:
-    - amd64
+archive:
+  format_overrides:
+    - goos: windows
+      format: zip
+  replacements:
+    darwin: MacOS
+brew:
+  github:
+    owner: qvl
+    name: homebrew-tap
+  folder: Formula
+  homepage: *homepage
+  description: *description
+fpm:
+  homepage: *homepage
+  description: *description
+  maintainer: Jorin Vogel <hi@jorin.me>
+  license: MIT
+  vendor: GoReleaser
+  formats:
+    - deb
