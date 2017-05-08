@@ -10,7 +10,7 @@ archive:
     - goos: windows
       format: zip
   replacements:
-    darwin: MacOS
+    darwin: mac
 brew:
   github:
     owner: qvl
