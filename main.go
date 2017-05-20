@@ -39,7 +39,7 @@ const step = 100
 func main() {
 	var (
 		silent      = flag.Bool("silent", false, "Optional. Suppress all output.")
-		versionFlag = flag.Bool("version", false, "Optional. Print binary version.")
+		versionFlag = flag.Bool("version", false, "Print binary version.")
 		promURL     = flag.String("url", "", "Required. URL of Prometheus server.")
 		query       = flag.String("query", "", "Required. PQL query.")
 		queryTime   = flags.UnixTime("time", time.Now(), "Time for query (default is now). Format like the default format of the Unix date command.")

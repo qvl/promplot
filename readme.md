@@ -50,7 +50,7 @@ But feel free to [add a new one](#development)!
       -url string
             Required. URL of Prometheus server.
       -version
-            Optional. Print binary version.
+            Print binary version.
 
 
 ## Install
@@ -84,7 +84,6 @@ promplot $common \
 promplot $common \
   -title "Free disk space in GB" \
   -query "node_filesystem_free /1024 /1024 /1024"
-  -range "24h"
 
 promplot $common \
   -title "Open file descriptors" \
