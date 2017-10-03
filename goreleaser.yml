@@ -1,5 +1,3 @@
-homepage: &homepage https://qvl.io/promplot
-description: &description Create plots from Prometheus metrics and send them to you
 build:
   goos:
     - windows
@@ -28,13 +26,13 @@ brew:
     owner: qvl
     name: homebrew-tap
   folder: Formula
-  homepage: *homepage
-  description: *description
+  homepage: https://qvl.io/promplot
+  description: Create plots from Prometheus metrics and send them to you
 fpm:
-  homepage: *homepage
-  description: *description
+  homepage: https://qvl.io/promplot
+  description: Create plots from Prometheus metrics and send them to you
   maintainer: Jorin Vogel <hi@jorin.me>
   license: MIT
-  vendor: GoReleaser
+  vendor: qvl
   formats:
     - deb
