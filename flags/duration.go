@@ -2,7 +2,6 @@ package flags
 
 import (
 	"flag"
-	"fmt"
 	"regexp"
 	"strconv"
 	"time"
@@ -22,7 +21,7 @@ func (d *durationValue) Set(s string) error {
 	}
 	v, err := time.ParseDuration(s)
 	if err != nil {
-		return fmt.Errorf("failed to parse string time: %v", err)
+		return err
 	}
 	*d = durationValue(v)
 	return nil

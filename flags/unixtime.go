@@ -2,7 +2,6 @@ package flags
 
 import (
 	"flag"
-	"fmt"
 	"time"
 )
 
@@ -15,7 +14,7 @@ func (t *unixTime) String() string {
 func (t *unixTime) Set(s string) error {
 	parsed, err := time.Parse(time.UnixDate, s)
 	if err != nil {
-		return fmt.Errorf("failed to parse string time: %v", err)
+		return err
 	}
 	*t = unixTime(parsed)
 	return nil
