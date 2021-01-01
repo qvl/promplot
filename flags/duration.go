@@ -20,8 +20,11 @@ func (d *durationValue) Set(s string) error {
 		s = s[:is[0]] + s[is[1]:] + strconv.FormatFloat(days*24, 'f', 6, 64) + "h"
 	}
 	v, err := time.ParseDuration(s)
+	if err != nil {
+		return err
+	}
 	*d = durationValue(v)
-	return err
+	return nil
 }
 
 func (d *durationValue) String() string {

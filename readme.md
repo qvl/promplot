@@ -1,6 +1,6 @@
 #  :chart_with_upwards_trend: promplot
 
-[![GoDoc](https://godoc.org/qvl.io/promplot?status.svg)](https://godoc.org/qvl.io/promplot)
+[![GoDoc](https://godoc.org/qvl.io/promplot?status.svg)](https://pkg.go.dev/qvl.io/promplot)
 [![Build Status](https://travis-ci.org/qvl/promplot.svg?branch=master)](https://travis-ci.org/qvl/promplot)
 [![Go Report Card](https://goreportcard.com/badge/qvl.io/promplot)](https://goreportcard.com/report/qvl.io/promplot)
 
