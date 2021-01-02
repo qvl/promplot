@@ -6,12 +6,12 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/palette/brewer"
-	"github.com/gonum/plot/plotter"
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
 	"github.com/prometheus/common/model"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/palette/brewer"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 // Only show important part of metric name
