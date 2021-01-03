@@ -1,15 +1,20 @@
-build:
-  goos:
-    - windows
-    - darwin
-    - linux
-  goarch:
-    - amd64
-    - 386
-    - arm
-    - arm64
-archive:
-  format_overrides:
+builds:
+  - env:
+      - CGO_ENABLED=0
+  - goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: 386
+archives:
+- format_overrides:
     - goos: windows
       format: zip
   name_template: "{{.Binary}}_{{.Version}}_{{.Os}}_{{.Arch}}"
@@ -21,18 +26,19 @@ archive:
     darwin: mac
     linux: linux
     windows: windows
-brew:
-  github:
+brews:
+- tap:
     owner: qvl
     name: homebrew-tap
   folder: Formula
   homepage: https://qvl.io/promplot
   description: Create plots from Prometheus metrics and send them to you
-fpm:
-  homepage: https://qvl.io/promplot
+nfpms:
+- homepage: https://qvl.io/promplot
   description: Create plots from Prometheus metrics and send them to you
   maintainer: Jorin Vogel <hi@jorin.me>
   license: MIT
   vendor: qvl
   formats:
     - deb
+    - rpm
