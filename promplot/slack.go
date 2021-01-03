@@ -1,23 +1,25 @@
 package promplot
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // Slack posts a file to a Slack channel.
 func Slack(token, channel, title string, plot io.WriterTo) error {
 	api := slack.New(token)
 
-	_, _, err := api.PostMessage(channel, title, slack.PostMessageParameters{
-		Username:  "Promplot",
-		IconEmoji: ":chart_with_upwards_trend:",
-	})
-	if err != nil {
+	if _, _, err := api.PostMessageContext(context.Background(), channel, slack.MsgOptionPostMessageParameters(
+		slack.PostMessageParameters{
+			Username:  "Promplot",
+			IconEmoji: ":chart_with_upwards_trend:",
+		},
+	)); err != nil {
 		return fmt.Errorf("failed to post message: %v", err)
 	}
 
@@ -25,27 +27,25 @@ func Slack(token, channel, title string, plot io.WriterTo) error {
 	if err != nil {
 		return fmt.Errorf("failed to create tmp file: %v", err)
 	}
+
 	defer func() {
-		err = f.Close()
-		if err != nil {
+		if err = f.Close(); err != nil {
 			panic(fmt.Errorf("failed to close tmp file: %v", err))
 		}
-		err := os.Remove(f.Name())
-		if err != nil {
+		if err = os.Remove(f.Name()); err != nil {
 			panic(fmt.Errorf("failed to delete tmp file: %v", err))
 		}
 	}()
-	_, err = plot.WriteTo(f)
-	if err != nil {
+
+	if _, err = plot.WriteTo(f); err != nil {
 		return fmt.Errorf("failed to write plot to file: %v", err)
 	}
 
-	_, err = api.UploadFile(slack.FileUploadParameters{
+	if _, err = api.UploadFile(slack.FileUploadParameters{
 		Title:    title,
 		File:     f.Name(),
 		Channels: []string{channel},
-	})
-	if err != nil {
+	}); err != nil {
 		return fmt.Errorf("failed to upload file: %v", err)
 	}
 
